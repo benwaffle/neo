@@ -1,10 +1,11 @@
 /**
  * This is probably the least portable header ever written. Some stuff I use:
- * - C11
- * - /proc/self/maps
- * - asprintf
- * - __attribute__((cleanup))
- * - __auto_type
+ *
+ * C11
+ * /proc/self/maps
+ * asprintf
+ * __attribute__((cleanup))
+ * __auto_type
  */
 
 #pragma once

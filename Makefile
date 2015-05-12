@@ -1,2 +1,2 @@
-CFLAGS = -std=gnu11 -g
-all: test
+CFLAGS = -std=gnu11 -g -Wall
+test: test.c

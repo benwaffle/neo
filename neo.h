@@ -2,7 +2,6 @@
  * This is probably the least portable header ever written. Some stuff I use:
  *
  * C11
- * /proc/self/maps
  * asprintf
  * __attribute__((cleanup))
  * __auto_type
@@ -30,12 +29,25 @@
 #include <stdarg.h>
 #include <assert.h>
 #include <unistd.h>
+#include <malloc.h>
+
+#ifndef HAVE_HEAP_START_VAR
+#define HAVE_HEAP_START_VAR
+void *heap_start;
+#else
+extern void *heap_start;
+#endif
+
+__attribute__((constructor))
+static void init_heap_start() {
+	heap_start = sbrk(0);
+}
 
 // p should be a void**, not void*
 // only free *p if it points to the heap
-static void _heap_check_free(void *p)
+static void _heap_check_free(void *_p)
 {
-	bool found_heap = false;
+/*	bool found_heap = false;
 
 	FILE *maps = fopen("/proc/self/maps", "r");
 	void *heap_start = NULL, *heap_end = NULL;
@@ -59,13 +71,18 @@ static void _heap_check_free(void *p)
 	if (found_heap)
 		if (!(heap_start <= p && p <= heap_end))
 			return;
-	free(*(void**)p);
+*/
+	void *p = *(void**)_p;
+
+        void *heap_end = sbrk(0);
+	if (heap_start <= p && p <= heap_end)
+		free(p);
 }
 
 // call _heap_check_free on the variable when it goes out of scope
 #define autofree __attribute__((cleanup(_heap_check_free)))
 
-// type inference! can only declare 1 variable per statement
+// type inference (can only declare 1 variable per statement)
 #define var __auto_type
 
 typedef char *string;

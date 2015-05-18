@@ -31,19 +31,19 @@
 #include <unistd.h>
 #include <malloc.h>
 
-#ifndef HAVE_HEAP_START_VAR
-#define HAVE_HEAP_START_VAR
+#ifndef HEAP_START_VAR
+#define HEAP_START_VAR
 void *heap_start;
+
+__attribute__((constructor))
+void init_heap_start() {
+        heap_start = sbrk(0);
+}
 #else
 extern void *heap_start;
 #endif
 
-__attribute__((constructor))
-static void init_heap_start() {
-	heap_start = sbrk(0);
-}
-
-// p should be a void**, not void*
+// p is really a void**
 // only free *p if it points to the heap
 static void _heap_check_free(void *_p)
 {
